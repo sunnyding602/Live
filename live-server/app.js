@@ -1,8 +1,37 @@
 var app = require('express')()
 var server = require('http').Server(app)
 var io = require('socket.io')(server)
+const bodyParser = require("body-parser");
+const userData = require("./data/user");
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 server.listen(3000)
+app.post('/login', function(req,res){
+  let email = req.body.email;
+  let password = req.body.password;
+  userData.login(email, password).then((user)=>{
+    res.json({status: 'succ', data: user, msg: 'succ'});
+  }).catch((err)=> {
+    res.json({status: 'err', msg: err});
+  });
+});
+
+app.post('/register', function(req,res){
+  let email = req.body.email;
+  let password = req.body.password;
+  let nickname = req.body.nickname;
+  userData.createUser(email, nickname, password).then((user)=> {
+    console.log(user);
+    res.json({status: 'succ', data: user, msg: 'succ'});
+  }).catch((err)=> {
+    res.json({status: 'err', msg: err});
+  });
+});
+
+app.get('/logout', function(req,res){
+
+});
 
 app.get('/rooms', function(req, res) {
   var roomList = Object.keys(rooms).map(function(key) {
